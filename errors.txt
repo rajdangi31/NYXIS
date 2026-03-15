@@ -1,0 +1,7 @@
+﻿components/ExternalLink.tsx(13,7): error TS2322: Type 'string' is not assignable to type '"/" | RelativePathString | ExternalPathString | "/modal" | `/modal?${string}` | `/modal#${string}` | "/../lib/architect" | `/../lib/architect?${string}` | `/../lib/architect#${string}` | "/_sitemap" | ... 51 more ... | { ...; }'.
+components/NewPathModal.tsx(21,36): error TS2307: Cannot find module '../lib/aiPlaceholder' or its corresponding type declarations.
+supabase/functions/generate-quests/index.ts(15,23): error TS2307: Cannot find module 'https://deno.land/std@0.168.0/http/server.ts' or its corresponding type declarations.
+supabase/functions/generate-quests/index.ts(16,30): error TS2307: Cannot find module 'https://esm.sh/@supabase/supabase-js@2' or its corresponding type declarations.
+supabase/functions/generate-quests/index.ts(44,24): error TS2304: Cannot find name 'Deno'.
+supabase/functions/generate-quests/index.ts(45,24): error TS2304: Cannot find name 'Deno'.
+supabase/functions/generate-quests/index.ts(46,24): error TS2304: Cannot find name 'Deno'.

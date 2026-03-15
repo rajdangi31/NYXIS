@@ -1,71 +1,110 @@
-import React from 'react';
-import { SymbolView } from 'expo-symbols';
-import { Link, Tabs } from 'expo-router';
-import { Platform, Pressable } from 'react-native';
+// ─────────────────────────────────────────────
+//  Tab Layout — The System navigation
+// ─────────────────────────────────────────────
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import React from 'react';
+import { Tabs } from 'expo-router';
+import { Shield, ScrollText, Trophy, Zap } from 'lucide-react-native';
+import { Platform, View, StyleSheet } from 'react-native';
+
+const NEON  = '#00E5FF';
+const GREY  = '#333';
+const BLACK = '#000';
+
+function TabIcon({
+  icon: Icon,
+  color,
+  focused,
+}: {
+  icon: typeof Shield;
+  color: string;
+  focused: boolean;
+}) {
+  return (
+    <View style={[styles.iconWrap, focused && styles.iconWrapFocused]}>
+      <Icon size={20} color={focused ? NEON : GREY} strokeWidth={focused ? 2 : 1.5} />
+    </View>
+  );
+}
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-      }}>
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: '#060606',
+          borderTopColor: '#00E5FF22',
+          borderTopWidth: 1,
+          height: Platform.OS === 'ios' ? 88 : 64,
+          paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+          paddingTop: 8,
+        },
+        tabBarActiveTintColor: NEON,
+        tabBarInactiveTintColor: GREY,
+        tabBarLabelStyle: {
+          fontFamily: 'SpaceMono',
+          fontSize: 8,
+          letterSpacing: 1.5,
+          marginTop: 2,
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
-              tintColor={color}
-              size={28}
-            />
-          ),
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable style={{ marginRight: 15 }}>
-                {({ pressed }) => (
-                  <SymbolView
-                    name={{ ios: 'info.circle', android: 'info', web: 'info' }}
-                    size={25}
-                    tintColor={Colors[colorScheme].text}
-                    style={{ opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
+          title: 'HOME',
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon icon={Zap} color={color} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="quests"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
-              tintColor={color}
-              size={28}
-            />
+          title: 'QUESTS',
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon icon={ScrollText} color={color} focused={focused} />
           ),
         }}
       />
+      <Tabs.Screen
+        name="status"
+        options={{
+          title: 'STATUS',
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon icon={Shield} color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="leaderboard"
+        options={{
+          title: 'RANKING',
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon icon={Trophy} color={color} focused={focused} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen name="two" options={{ href: null }} />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  iconWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+  },
+  iconWrapFocused: {
+    backgroundColor: '#00E5FF11',
+    shadowColor: NEON,
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 0 },
+  },
+});
