@@ -1,0 +1,44 @@
+
+[functions.generate-quests]
+enabled = true
+verify_jwt = true
+import_map = "./functions/generate-quests/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/generate-quests/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/generate-quests/*.html" ]
+
+[functions.evaluate-hunter]
+enabled = true
+verify_jwt = true
+import_map = "./functions/evaluate-hunter/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/evaluate-hunter/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/evaluate-hunter/*.html" ]
+
+[functions.strategize-path]
+enabled = true
+verify_jwt = true
+import_map = "./functions/strategize-path/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/strategize-path/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/strategize-path/*.html" ]
+
+[functions.evaluate-proof-quality]
+enabled = true
+verify_jwt = true
+import_map = "./functions/evaluate-proof-quality/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/evaluate-proof-quality/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/evaluate-proof-quality/*.html" ]

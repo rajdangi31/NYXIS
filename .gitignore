@@ -1,43 +1,91 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# ═══════════════════════════════════════════════════════════
+#  NYXIS .gitignore
+#  Stack: React Native · Expo SDK 54 · Supabase · Deno Edge Functions
+# ═══════════════════════════════════════════════════════════
 
-# dependencies
+# ─── ENVIRONMENT & SECRETS (CRITICAL) ─────────────────────
+# Contains Supabase URLs, anon keys, OpenRouter keys, Gemini keys.
+# The .env.example template IS safe to commit.
+.env
+.env.*
+.env.local
+.env.development
+.env.production
+.env.staging
+!.env.example
+
+# ─── DEPENDENCIES ─────────────────────────────────────────
 node_modules/
 
-# Expo
+# ─── EXPO ─────────────────────────────────────────────────
 .expo/
 dist/
 web-build/
 expo-env.d.ts
 
-# Native
+# ─── NATIVE BUILD OUTPUT ─────────────────────────────────
+/ios/
+/android/
 .kotlin/
 *.orig.*
-*.jks
+
+# ─── EAS BUILD ────────────────────────────────────────────
+*.tar.gz
+*.ipa
+*.apk
+*.aab
+
+# ─── APPLE DEVELOPER CERTIFICATES & SIGNING ─────────────
 *.p8
 *.p12
+*.cer
 *.key
+*.pem
 *.mobileprovision
+*.provisionprofile
+AuthKey_*.p8
 
-# Metro
+# ─── ANDROID KEYSTORE & SIGNING ──────────────────────────
+*.jks
+*.keystore
+google-services.json
+
+# ─── METRO BUNDLER ────────────────────────────────────────
 .metro-health-check*
 
-# debug
+# ─── SUPABASE LOCAL DEV ──────────────────────────────────
+# Contains project-ref, pooler-url, and other local identifiers.
+supabase/.temp/
+supabase/.branches/
+
+# ─── DEBUG LOGS ──────────────────────────────────────────
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+*.log
+*.log.*
 
-# macOS
-.DS_Store
-*.pem
-
-# local env files
-.env*.local
-
-# typescript
+# ─── TYPESCRIPT ──────────────────────────────────────────
 *.tsbuildinfo
 
-app-example
+# ─── OS FILES ────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+ehthumbs.db
 
-# generated native folders
-/ios
-/android
+# ─── IDE / EDITOR ────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# ─── ARTIFACT & SCRATCH FILES ────────────────────────────
+lint_check.json
+app-example/
+nyxis_overview.md
+overview.md

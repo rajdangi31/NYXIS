@@ -1,33 +1,46 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { COLORS, TYPOGRAPHY } from '@/constants/design-tokens';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarStyle: {
+          backgroundColor: COLORS.BG_PRIMARY,
+          borderTopWidth: 1,
+          borderTopColor: COLORS.BORDER_DEFAULT,
+          height: 60,
+          paddingBottom: 10,
+          paddingTop: 5,
+        },
+        tabBarActiveTintColor: COLORS.NEON_CYAN,
+        tabBarInactiveTintColor: COLORS.TEXT_MUTED,
+        tabBarLabelStyle: {
+          fontFamily: TYPOGRAPHY.MONO,
+          fontSize: TYPOGRAPHY.SIZE.SMALL,
+          fontWeight: TYPOGRAPHY.WEIGHT.BLACK,
+          letterSpacing: TYPOGRAPHY.SPACING.TIGHT,
+        },
+      }}
+    >
       <Tabs.Screen
-        name="index"
+        name="status"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'STATUS',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account-search-outline" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="quests"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'DIRECTIVES',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="clipboard-list-outline" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>
