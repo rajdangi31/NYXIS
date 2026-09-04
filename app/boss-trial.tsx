@@ -12,7 +12,8 @@ import Animated, {
   interpolateColor,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { COLORS, TYPOGRAPHY, SPACING } from '@/constants/design-tokens';
+import { COLORS, TYPOGRAPHY, SPACING, RADIUS } from '@/constants/design-tokens';
+import { GridBackdrop, LiquidGlass } from '@/components/liquid-glass';
 
 export default function BossTrialScreen() {
   const router = useRouter();
@@ -96,28 +97,39 @@ export default function BossTrialScreen() {
 
   const animatedBg = useAnimatedStyle(() => ({
     opacity: bgOpacity.value,
-    backgroundColor: interpolateColor(dangerPulse.value, [0, 1], ['#040000', COLORS.BG_DANGER]),
+    backgroundColor: interpolateColor(dangerPulse.value, [0, 1], [COLORS.BACKGROUND, COLORS.BG_DANGER]),
   }));
   const animatedContent = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
     transform: [{ translateY: contentTranslateY.value }],
   }));
   const animatedBorder = useAnimatedStyle(() => ({
-    borderColor: interpolateColor(dangerPulse.value, [0, 1], ['rgba(255, 0, 60, 0.3)', 'rgba(255, 0, 60, 1)']),
+    borderColor: interpolateColor(dangerPulse.value, [0, 1], ['rgba(255, 59, 48, 0.25)', 'rgba(255, 59, 48, 1)']),
   }));
 
   return (
     <Animated.View style={[styles.container, animatedBg]}>
-      <Animated.View style={[styles.contentBox, animatedBorder, animatedContent]}>
-        <Text style={styles.warningText}>{'[ SYSTEM WARNING ]'}</Text>
-        <Text style={styles.fatalTitle}>{scrambledTitle || '[  ............  ]'}</Text>
+      <GridBackdrop />
+
+      <Animated.View style={[animatedContent, styles.contentWrap]}>
+        <Animated.View style={animatedBorder}>
+          <LiquidGlass
+            variant="strong"
+            tint="magenta"
+            accent={COLORS.NEON_RED}
+            radius={RADIUS.XXL}
+            style={styles.contentShell}
+            contentStyle={styles.contentBox}
+          >
+        <Text style={styles.warningText}>SYSTEM WARNING</Text>
+        <Text style={styles.fatalTitle}>{scrambledTitle || '............'}</Text>
         <View style={styles.divider} />
         <Text style={styles.subText}>
           THE HUNTER HAS REACHED A CRITICAL POWER THRESHOLD. A BOSS INSTANCE HAS BEEN GENERATED.
         </Text>
 
         <View style={styles.objectiveBlock}>
-          <Text style={styles.objectiveLabel}>{`// OBJECTIVE:`}</Text>
+          <Text style={styles.objectiveLabel}>{`// REQUIREMENT`}</Text>
           <Text style={styles.objectiveText}>ADVANCE TO {rankTarget}</Text>
         </View>
 
@@ -140,12 +152,14 @@ export default function BossTrialScreen() {
           }}
           activeOpacity={0.8}
         >
-          <Text style={styles.btnTextAccept}>[ ENTER THE GATE ]</Text>
+          <Text style={styles.btnTextAccept}>ENTER THE GATE</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.btnRefuse} disabled={true} activeOpacity={1}>
-          <Text style={styles.btnTextRefuse}>ABORT (LOCKED)</Text>
+          <Text style={styles.btnTextRefuse}>ABORT MISSION (LOCKED)</Text>
         </TouchableOpacity>
+          </LiquidGlass>
+        </Animated.View>
       </Animated.View>
     </Animated.View>
   );
@@ -154,26 +168,69 @@ export default function BossTrialScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: SPACING.XL },
 
-  contentBox: { width: '100%', backgroundColor: 'rgba(6, 0, 0, 0.85)', borderWidth: 2, padding: SPACING.XXL, alignItems: 'center', shadowColor: COLORS.NEON_RED, shadowOffset: { width: 0, height: 0 }, shadowRadius: 30, shadowOpacity: 0.5 },
+  contentWrap: {
+    width: '100%',
+  },
+  contentShell: {
+    width: '100%',
+    shadowColor: COLORS.NEON_RED,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 24,
+    shadowOpacity: 0.22,
+  },
+  contentBox: {
+    width: '100%',
+    padding: SPACING.XXL,
+    alignItems: 'center',
+  },
 
-  warningText: { color: COLORS.NEON_RED, fontSize: TYPOGRAPHY.SIZE.MEDIUM, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, letterSpacing: TYPOGRAPHY.SPACING.DISPLAY, marginBottom: 15 },
-  fatalTitle: { color: COLORS.TEXT_PRIMARY, fontSize: 26, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, textAlign: 'center', textShadowColor: COLORS.NEON_RED, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 15, letterSpacing: TYPOGRAPHY.SPACING.WIDE, marginBottom: SPACING.XL, fontFamily: TYPOGRAPHY.MONO },
+  warningText: { color: COLORS.NEON_RED, fontSize: TYPOGRAPHY.SIZE.MEDIUM, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, letterSpacing: TYPOGRAPHY.SPACING.DISPLAY, marginBottom: 10 },
+  fatalTitle: { color: COLORS.TEXT_PRIMARY, fontSize: 24, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, textAlign: 'center', textShadowColor: COLORS.NEON_RED, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 15, letterSpacing: TYPOGRAPHY.SPACING.WIDE, marginBottom: SPACING.XL },
 
-  divider: { height: 1, backgroundColor: COLORS.NEON_RED, opacity: 0.3, width: '100%', marginBottom: 25 },
+  divider: { height: 1, backgroundColor: COLORS.NEON_RED, opacity: 0.2, width: '100%', marginBottom: 25 },
 
-  subText: { color: COLORS.TEXT_SECONDARY, fontSize: 11, fontWeight: TYPOGRAPHY.WEIGHT.BOLD, letterSpacing: TYPOGRAPHY.SPACING.NORMAL, textAlign: 'center', lineHeight: 18, marginBottom: SPACING.XXL },
+  subText: { color: COLORS.TEXT_SECONDARY, fontSize: TYPOGRAPHY.SIZE.BODY, fontWeight: TYPOGRAPHY.WEIGHT.NORMAL, textAlign: 'center', lineHeight: 22, marginBottom: SPACING.XXL },
 
-  objectiveBlock: { width: '100%', backgroundColor: COLORS.BG_DANGER, padding: 15, borderWidth: 1, borderColor: COLORS.NEON_RED, borderLeftWidth: 4, marginBottom: 25 },
-  objectiveLabel: { color: COLORS.NEON_RED, fontSize: TYPOGRAPHY.SIZE.TINY, fontWeight: TYPOGRAPHY.WEIGHT.HEAVY, letterSpacing: TYPOGRAPHY.SPACING.NORMAL, marginBottom: 5 },
-  objectiveText: { color: COLORS.TEXT_PRIMARY, fontSize: TYPOGRAPHY.SIZE.HEADING, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, letterSpacing: TYPOGRAPHY.SPACING.TIGHT },
+  objectiveBlock: {
+    width: '100%',
+    backgroundColor: COLORS.alpha(COLORS.NEON_RED, 0.05),
+    padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.alpha(COLORS.NEON_RED, 0.35),
+    borderRadius: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.NEON_RED,
+    marginBottom: 24,
+  },
+  objectiveLabel: { color: COLORS.NEON_RED, fontSize: TYPOGRAPHY.SIZE.TINY, fontWeight: TYPOGRAPHY.WEIGHT.HEAVY, letterSpacing: TYPOGRAPHY.SPACING.NORMAL, marginBottom: 6 },
+  objectiveText: { color: COLORS.TEXT_PRIMARY, fontSize: TYPOGRAPHY.SIZE.LARGE, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, letterSpacing: TYPOGRAPHY.SPACING.TIGHT },
 
-  statContainer: { flexDirection: 'row', width: '100%', gap: 10, marginBottom: SPACING.XXXL },
-  statBox: { flex: 1, backgroundColor: '#0A0002', paddingVertical: 15, alignItems: 'center', borderWidth: 1, borderColor: '#33000A' },
-  statLabel: { color: '#666', fontSize: TYPOGRAPHY.SIZE.TINY, fontWeight: TYPOGRAPHY.WEIGHT.HEAVY, letterSpacing: TYPOGRAPHY.SPACING.NORMAL, marginBottom: 5 },
-  statValue: { color: COLORS.NEON_RED, fontSize: TYPOGRAPHY.SIZE.MEDIUM, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, fontFamily: TYPOGRAPHY.MONO },
+  statContainer: { flexDirection: 'row', width: '100%', gap: 12, marginBottom: SPACING.XXXL },
+  statBox: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    paddingVertical: 14,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.BORDER_DEFAULT,
+    borderRadius: 12,
+  },
+  statLabel: { color: COLORS.TEXT_MUTED, fontSize: TYPOGRAPHY.SIZE.TINY, fontWeight: TYPOGRAPHY.WEIGHT.HEAVY, letterSpacing: TYPOGRAPHY.SPACING.NORMAL, marginBottom: 4 },
+  statValue: { color: COLORS.NEON_RED, fontSize: TYPOGRAPHY.SIZE.BODY, fontWeight: TYPOGRAPHY.WEIGHT.HEAVY },
 
-  btnAccept: { width: '100%', backgroundColor: COLORS.NEON_RED, paddingVertical: SPACING.LG, alignItems: 'center', shadowColor: COLORS.NEON_RED, shadowOffset: { width: 0, height: 0 }, shadowRadius: 15, shadowOpacity: 0.8, marginBottom: 15 },
-  btnTextAccept: { color: '#000', fontSize: TYPOGRAPHY.SIZE.LARGE, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, letterSpacing: TYPOGRAPHY.SPACING.ULTRA },
+  btnAccept: {
+    width: '100%',
+    backgroundColor: COLORS.NEON_RED,
+    paddingVertical: 16,
+    alignItems: 'center',
+    borderRadius: RADIUS.XL,
+    shadowColor: COLORS.NEON_RED,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 12,
+    shadowOpacity: 0.4,
+    marginBottom: 15,
+  },
+  btnTextAccept: { color: '#000000', fontSize: TYPOGRAPHY.SIZE.MEDIUM, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, letterSpacing: TYPOGRAPHY.SPACING.WIDE },
 
   btnRefuse: { width: '100%', paddingVertical: SPACING.MD, alignItems: 'center', opacity: 0.4 },
   btnTextRefuse: { color: COLORS.TEXT_SECONDARY, fontSize: TYPOGRAPHY.SIZE.SMALL, fontWeight: TYPOGRAPHY.WEIGHT.BOLD, letterSpacing: TYPOGRAPHY.SPACING.NORMAL, textDecorationLine: 'line-through' },

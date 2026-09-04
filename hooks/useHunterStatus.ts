@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSafeSession, supabase } from '@/lib/supabase';
 import type { HunterProfile } from '@/lib/types';
 
 export function useHunterStatus() {
@@ -8,7 +8,7 @@ export function useHunterStatus() {
 
   const fetchProfile = useCallback(async () => {
     setLoading(true);
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    const { session, error: sessionError } = await getSafeSession();
 
     if (sessionError || !session?.user?.id) {
       console.error("Auth session missing or error:", sessionError);

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NYXIS OS | System State</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Geist:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>body {
+    background-color: #141313;
+    color: #e5e2e1;
+    font-family: "Geist", sans-serif;
+    overflow-x: hidden
+    }
+.grain-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.05;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuB9lYyXrWzeePsjqEWqBBWZChx5_GBuHCe-S0sMtiadt1ln-rIPyFyiIHDon5X-52DcP0lAiahR9l4IPL10neD8hYJVi4BGM1ccz1teaTS6hAr_0CHwHayo2hYCDAE2rRlUx1dfFfrn5uLp23z8r4ZO3TN93XPqV1P6VTOVCONbR4OyUBnQgTAiTi9paC9XVZov-8sNeHYLCKfS5G-5rCEJpzIWXTOVqRmkmD_TyFrDHuiSvGwglLlphqRHU8z5IGPJUFc4-qpJFCJc)
+    }
+.glass-panel {
+    background: rgba(45, 47, 51, 0.4);
+    backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255, 180, 171, 0.2)
+    }
+.pressure-pulse {
+    animation: pulse-red 4s infinite cubic-bezier(0.4, 0, 0.6, 1)
+    }
+@keyframes pulse-red {
+    0%, 100% {
+        border-color: rgba(255, 180, 171, 0.2);
+        box-shadow: 0 0 5px rgba(147, 0, 10, 0);
+        } 50% {
+        border-color: rgba(255, 180, 171, 0.5);
+        box-shadow: 0 0 15px rgba(147, 0, 10, 0.3);
+        }
+    }
+.shimmer-text {
+    background: linear-gradient(90deg, #ffb4ab, #e5e2e1, #ffb4ab);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 3s linear infinite
+    }
+@keyframes shine {
+    to {
+        background-position: 200% center;
+        }
+    }
+.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+    }</style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#0e0e0e",
+                        "inverse-primary": "#5e5e61",
+                        "surface-tint": "#c7c6c9",
+                        "background": "#141313",
+                        "on-tertiary-container": "#797a7f",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed-variant": "#45474b",
+                        "secondary-fixed": "#7df4ff",
+                        "tertiary-fixed": "#e2e2e7",
+                        "on-tertiary-fixed": "#1a1c1f",
+                        "primary-container": "#0b0c0e",
+                        "on-secondary-container": "#00686f",
+                        "secondary-fixed-dim": "#00dbe9",
+                        "primary-fixed": "#e3e2e5",
+                        "surface-dim": "#141313",
+                        "on-secondary-fixed-variant": "#004f54",
+                        "on-primary-fixed": "#1b1c1e",
+                        "tertiary": "#c6c6cb",
+                        "secondary": "#d3fbff",
+                        "error": "#ffb4ab",
+                        "on-surface": "#e5e2e1",
+                        "primary": "#c7c6c9",
+                        "tertiary-fixed-dim": "#c6c6cb",
+                        "inverse-on-surface": "#313030",
+                        "secondary-container": "#00eefc",
+                        "on-primary-container": "#7a7a7c",
+                        "inverse-surface": "#e5e2e1",
+                        "outline-variant": "#45474a",
+                        "surface-container-highest": "#353434",
+                        "on-surface-variant": "#c6c6ca",
+                        "surface-variant": "#353434",
+                        "surface": "#141313",
+                        "on-primary-fixed-variant": "#464749",
+                        "on-tertiary": "#2e3034",
+                        "tertiary-container": "#0a0c10",
+                        "outline": "#909094",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "on-background": "#e5e2e1",
+                        "surface-bright": "#3a3939",
+                        "on-primary": "#303033",
+                        "surface-container": "#201f1f",
+                        "on-secondary-fixed": "#002022",
+                        "on-secondary": "#00363a",
+                        "surface-container-low": "#1c1b1b",
+                        "on-error": "#690005",
+                        "primary-fixed-dim": "#c7c6c9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "max-width": "1440px",
+                        "margin-desktop": "48px",
+                        "gutter": "16px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "data-lg": ["JetBrains Mono"],
+                        "display-lg-mobile": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-md": ["Geist"],
+                        "label-sm": ["JetBrains Mono"],
+                        "display-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "data-lg": ["20px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-sm": ["11px", {"lineHeight": "1.4", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface">
+<div class="grain-overlay"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/40 backdrop-blur-xl border-b border-error/20 shadow-[0_0_15px_rgba(147,0,10,0.1)] flex justify-between items-center px-margin-mobile h-16 md:px-margin-desktop">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-error/40">
+<img alt="Architect Profile" class="w-full h-full object-cover grayscale brightness-75" data-alt="A close-up, high-detail macro shot of a futuristic obsidian mask with glowing red fiber-optic veins running through it. The lighting is moody and low-key, with a sharp rim light highlighting the cold, polished surface. This digital art piece represents a stoic AI entity in a dark, high-performance command center, mirroring the NYXIS OS aesthetic of deep blacks and sharp crimson accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJDMQAYUl3L8KGPLhpe3OmkFIkOjs204dG5lwF0fFgril2n3IY8Wiq1BmWq66tj4Lq5mTn1qeOAiSTlTg7FJBpSZ_xvDscs3g77zUyOX_TqBYevRtD8vnqTF-zCsd4mdpaT3_BIz1rr3hkFy4v8sBmrFsF9JhaFqnNS9-WGGi93MDdpgb3a9PLVjvaamB0iHFPE7Sjs0xkUxAnlYKDobGT4pQjaJoI8hfsN4ktb5BdJTr7Pt9GwBKb0C43wcDUCY6UCVgBkUClQZq2"/>
+</div>
+<span class="text-headline-md font-headline-md tracking-tighter text-error">NYXIS OS</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-error hover:scale-95 transition-transform">notifications</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
+<!-- System Status Header -->
+<section class="mb-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface uppercase tracking-widest">System State</h1>
+<div class="flex items-center gap-2 mt-2">
+<span class="w-2 h-2 bg-error rounded-full pressure-pulse"></span>
+<p class="font-data-lg text-data-lg text-error uppercase">Pressured</p>
+</div>
+</div>
+<div class="glass-panel px-6 py-4 rounded-xl border border-error/30 flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Adaptive Difficulty</span>
+<span class="font-data-lg text-data-lg text-error">Tier IV (Critical)</span>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Left Column: The Architect's Terminal -->
+<div class="md:col-span-7 flex flex-col gap-gutter">
+<div class="glass-panel p-6 rounded-xl relative overflow-hidden border-l-4 border-l-error">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-error text-sm">terminal</span>
+<h3 class="font-label-sm text-label-sm text-error uppercase">The Architect // Signal</h3>
+</div>
+<div class="space-y-4 font-body-md text-body-md text-on-surface-variant">
+<p class="border-l border-error/20 pl-4 py-1 italic">"Consistency dropping. System recalibrating difficulty. The luxury of average performance has been revoked."</p>
+<p class="border-l border-error/20 pl-4 py-1 italic">"Adaptive algorithms have detected a 14% slippage in morning execution. Compensation required."</p>
+</div>
+<div class="mt-6 flex justify-end">
+<span class="font-label-sm text-label-sm text-error/60">Awaiting acknowledgment...</span>
+</div>
+</div>
+<!-- Active Penalties (Bento Style) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="glass-panel p-6 rounded-xl border border-error/10 hover:border-error/40 transition-colors">
+<span class="material-symbols-outlined text-error mb-2">hourglass_disabled</span>
+<h4 class="font-headline-md text-[18px] mb-1">Time Lock</h4>
+<p class="font-body-md text-sm text-on-surface-variant">Entertainment protocols locked until 20:00. No bypass available.</p>
+</div>
+<div class="glass-panel p-6 rounded-xl border border-error/10 hover:border-error/40 transition-colors">
+<span class="material-symbols-outlined text-error mb-2">trending_down</span>
+<h4 class="font-headline-md text-[18px] mb-1">XP Decay</h4>
+<p class="font-body-md text-sm text-on-surface-variant">Passive Quest rewards reduced by 30% for the next 24 hours.</p>
+</div>
+</div>
+<!-- State Adaptation Visualizer -->
+<div class="glass-panel p-6 rounded-xl border border-error/10 min-h-[300px] flex flex-col">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-6">Pressure Map</h3>
+<div class="flex-grow flex items-center justify-center relative">
+<!-- Abstract Geometric Visualization -->
+<div class="relative w-48 h-48">
+<div class="absolute inset-0 border border-error/20 rounded-full animate-[spin_10s_linear_infinite]"></div>
+<div class="absolute inset-4 border border-error/40 rounded-full animate-[spin_6s_linear_infinite_reverse]"></div>
+<div class="absolute inset-8 border-2 border-error rounded-full opacity-30 shadow-[0_0_20px_rgba(147,0,10,0.5)]"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="font-data-lg text-data-lg text-error">88%</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 mt-6">
+<div class="text-center">
+<span class="block font-label-sm text-[9px] text-on-surface-variant uppercase">Stress</span>
+<span class="font-data-lg text-sm text-error">High</span>
+</div>
+<div class="text-center border-x border-white/5">
+<span class="block font-label-sm text-[9px] text-on-surface-variant uppercase">Adaptation</span>
+<span class="font-data-lg text-sm text-on-surface">Active</span>
+</div>
+<div class="text-center">
+<span class="block font-label-sm text-[9px] text-on-surface-variant uppercase">Threshold</span>
+<span class="font-data-lg text-sm text-on-surface">92%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Trial Requirements & Quests -->
+<div class="md:col-span-5 flex flex-col gap-gutter">
+<div class="glass-panel p-8 rounded-xl border border-error bg-error-container/10 flex flex-col gap-6">
+<div class="flex justify-between items-start">
+<h2 class="font-headline-md text-headline-md text-on-surface">Recalibration Trial</h2>
+<span class="material-symbols-outlined text-error" data-weight="fill">priority_high</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                        To exit the <span class="text-error font-bold">PRESSURED</span> state, the following parameters must be met within the next 12 hours. Failure will result in System Reset.
+                    </p>
+<ul class="space-y-4">
+<li class="flex items-center gap-4">
+<div class="w-10 h-10 rounded glass-panel border border-error/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-error text-[20px]">fitness_center</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between font-label-sm text-[10px] uppercase text-on-surface-variant mb-1">
+<span>High Intensity Output</span>
+<span>60%</span>
+</div>
+<div class="h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error shadow-[0_0_8px_rgba(255,180,171,0.5)]" style="width: 60%"></div>
+</div>
+</div>
+</li>
+<li class="flex items-center gap-4 opacity-60">
+<div class="w-10 h-10 rounded glass-panel border border-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">menu_book</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between font-label-sm text-[10px] uppercase text-on-surface-variant mb-1">
+<span>Deep Focus Blocks</span>
+<span>0/2</span>
+</div>
+<div class="h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error" style="width: 0%"></div>
+</div>
+</div>
+</li>
+</ul>
+<button class="w-full py-4 bg-error text-background font-data-lg text-sm rounded hover:brightness-110 active:scale-[0.98] transition-all uppercase tracking-tighter mt-4">
+                        Initiate Proof Protocol
+                    </button>
+</div>
+<div class="glass-panel p-6 rounded-xl border border-white/5">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-4">Pending Consequences</h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 border-b border-white/5">
+<span class="font-body-md text-sm">System Freeze</span>
+<span class="font-label-sm text-[10px] text-error px-2 py-1 border border-error/30 rounded">T-11h</span>
+</div>
+<div class="flex items-center justify-between p-3 border-b border-white/5">
+<span class="font-body-md text-sm">Streak Reset</span>
+<span class="font-label-sm text-[10px] text-error px-2 py-1 border border-error/30 rounded">Critical</span>
+</div>
+</div>
+</div>
+<div class="relative h-48 rounded-xl overflow-hidden grayscale hover:grayscale-0 transition-all duration-700 border border-error/20 group">
+<img alt="Environmental Context" class="w-full h-full object-cover" data-alt="A dark, cinematic high-angle shot of a lone runner on a deserted highway at dawn. The atmosphere is thick with cold fog, and the only light comes from a distant, muted red neon sign reflecting off the wet asphalt. The mood is isolated, intense, and hyper-focused, perfectly capturing the high-stakes, stoic elite atmosphere of the NYXIS system recalibration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrXfi39lo3y_Uqq6_z4zr4yjH4NiBUfIhBVWG4IziExJPafDLzYtxsvKi6iVD2_LtNXrPlGP-SI7njFVApHIggViJqkX-vEyqGRi0AOty7iqPWRMYP3hnrue6Lt58mVnIN6hIuR7h5P_-k1BMPuoWHHIt8o-iNTI0ChowoF1tEY6EKvl4U3HStfXnwwlHDmWpa-fkQqERBZLiASR5-J4ilmFDN0oHE4jLDvtrC5CSfs3Rt-wUynrZoJBdHeFKrp5qw5-ozwJUAZLTH"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+<div>
+<p class="font-label-sm text-[10px] text-error uppercase">Current Environment</p>
+<p class="font-headline-md text-[16px]">Harsh Realities</p>
+</div>
+<span class="material-symbols-outlined text-white/40 group-hover:text-error transition-colors">visibility</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-surface-container/40 backdrop-blur-xl border-t border-error/10 rounded-t-xl shadow-[0_-4px_20px_rgba(0,0,0,0.5)] md:hidden">
+<div class="flex flex-col items-center justify-center text-on-tertiary-fixed-variant opacity-60 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">rocket_launch</span>
+<span class="text-label-sm font-label-sm">Mission</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-tertiary-fixed-variant opacity-60 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">ads_click</span>
+<span class="text-label-sm font-label-sm">Quests</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-tertiary-fixed-variant opacity-60 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-sm font-label-sm">Profile</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary-container drop-shadow-[0_0_8px_rgba(255,180,171,0.5)] translate-y-[-2px] transition-transform">
+<span class="material-symbols-outlined text-error">terminal</span>
+<span class="text-label-sm font-label-sm text-error">System</span>
+</div>
+</nav>
+<!-- Desktop Sidebar/Nav Mockup (Simplified for the layout) -->
+<div class="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 flex-col gap-8 z-50">
+<button class="w-12 h-12 flex items-center justify-center glass-panel rounded-full text-on-surface-variant hover:text-error transition-colors border-white/10">
+<span class="material-symbols-outlined">rocket_launch</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center glass-panel rounded-full text-on-surface-variant hover:text-error transition-colors border-white/10">
+<span class="material-symbols-outlined">ads_click</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center glass-panel rounded-full text-error border-error/40 shadow-[0_0_10px_rgba(147,0,10,0.2)]">
+<span class="material-symbols-outlined">terminal</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center glass-panel rounded-full text-on-surface-variant hover:text-error transition-colors border-white/10">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+<script>
+        // Simple micro-interaction for the Architect signals
+        const signals = document.querySelectorAll('.italic');
+        signals.forEach((sig, index) => {
+            sig.style.opacity = '0';
+            sig.style.transform = 'translateX(-10px)';
+            setTimeout(() => {
+                sig.style.transition = 'all 0.8s ease-out';
+                sig.style.opacity = '1';
+                sig.style.transform = 'translateX(0)';
+            }, 500 + (index * 400));
+        });
+
+        // Background flicker effect for "Pressure"
+        setInterval(() => {
+            if (Math.random() > 0.95) {
+                document.body.style.filter = 'contrast(1.1) brightness(0.9)';
+                setTimeout(() => {
+                    document.body.style.filter = 'none';
+                }, 50);
+            }
+        }, 3000);
+    </script>
+</body></html>

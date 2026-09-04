@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NYXIS OS | System Calibration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Geist:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#0e0e0e",
+                      "inverse-primary": "#5e5e61",
+                      "surface-tint": "#c7c6c9",
+                      "background": "#141313",
+                      "on-tertiary-container": "#797a7f",
+                      "surface-container-high": "#2a2a2a",
+                      "on-tertiary-fixed-variant": "#45474b",
+                      "secondary-fixed": "#7df4ff",
+                      "tertiary-fixed": "#e2e2e7",
+                      "on-tertiary-fixed": "#1a1c1f",
+                      "primary-container": "#0b0c0e",
+                      "on-secondary-container": "#00686f",
+                      "secondary-fixed-dim": "#00dbe9",
+                      "primary-fixed": "#e3e2e5",
+                      "surface-dim": "#141313",
+                      "on-secondary-fixed-variant": "#004f54",
+                      "on-primary-fixed": "#1b1c1e",
+                      "tertiary": "#c6c6cb",
+                      "secondary": "#d3fbff",
+                      "error": "#ffb4ab",
+                      "on-surface": "#e5e2e1",
+                      "primary": "#c7c6c9",
+                      "tertiary-fixed-dim": "#c6c6cb",
+                      "inverse-on-surface": "#313030",
+                      "secondary-container": "#00eefc",
+                      "on-primary-container": "#7a7a7c",
+                      "inverse-surface": "#e5e2e1",
+                      "outline-variant": "#45474a",
+                      "surface-container-highest": "#353434",
+                      "on-surface-variant": "#c6c6ca",
+                      "surface-variant": "#353434",
+                      "surface": "#141313",
+                      "on-primary-fixed-variant": "#464749",
+                      "on-tertiary": "#2e3034",
+                      "tertiary-container": "#0a0c10",
+                      "outline": "#909094",
+                      "error-container": "#93000a",
+                      "on-error-container": "#ffdad6",
+                      "on-background": "#e5e2e1",
+                      "surface-bright": "#3a3939",
+                      "on-primary": "#303033",
+                      "surface-container": "#201f1f",
+                      "on-secondary-fixed": "#002022",
+                      "on-secondary": "#00363a",
+                      "surface-container-low": "#1c1b1b",
+                      "on-error": "#690005",
+                      "primary-fixed-dim": "#c7c6c9"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "max-width": "1440px",
+                      "margin-desktop": "48px",
+                      "gutter": "16px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "data-lg": ["JetBrains Mono"],
+                      "display-lg-mobile": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "body-md": ["Geist"],
+                      "label-sm": ["JetBrains Mono"],
+                      "display-lg": ["Geist"]
+              },
+              "fontSize": {
+                      "data-lg": ["20px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                      "display-lg-mobile": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                      "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                      "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                      "label-sm": ["11px", { "lineHeight": "1.4", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                      "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0e0e0e;
+            color: #e5e2e1;
+            overflow: hidden;
+        }
+        .glass-panel {
+            background: rgba(45, 47, 51, 0.4);
+            backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(0, 219, 233, 0.2);
+        }
+        .calibration-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00dbe9, transparent);
+            width: 100%;
+            position: absolute;
+            opacity: 0.3;
+        }
+        .step-hidden {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .step-active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 219, 233, 0.2);
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            animation: scan 4s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(0, 219, 233, 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md">
+<!-- Atmospheric Background Elements -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+<div class="absolute top-1/4 left-1/4 w-96 h-96 bg-secondary-fixed-dim/5 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary-container/5 rounded-full blur-[120px]"></div>
+<div class="scanline"></div>
+<canvas class="absolute inset-0 w-full h-full opacity-20" id="geometricCanvas"></canvas>
+</div>
+<!-- Main Content Canvas -->
+<main class="relative z-10 flex flex-col items-center justify-center min-h-screen px-margin-mobile md:px-margin-desktop">
+<!-- Header Branding -->
+<header class="fixed top-0 w-full flex justify-between items-center px-margin-mobile h-16 z-50">
+<div class="text-headline-md font-headline-md tracking-tighter text-secondary-fixed-dim">
+                NYXIS OS
+            </div>
+<div class="flex items-center gap-4">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">System Calibrating...</span>
+<div class="w-2 h-2 rounded-full bg-secondary-fixed-dim animate-pulse"></div>
+</div>
+</header>
+<!-- Stepper Layout -->
+<section class="w-full max-w-2xl">
+<!-- Step 1: Objective -->
+<div class="step-active flex flex-col items-center text-center space-y-8" id="step-1">
+<div class="space-y-2">
+<span class="font-label-sm text-label-sm text-secondary-fixed-dim uppercase tracking-widest">Calibration Phase 01</span>
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface leading-tight">What is your primary objective?</h1>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+<button class="glass-panel p-8 text-left group hover:border-secondary-fixed-dim transition-all duration-300" onclick="nextStep(2, 'Performance')">
+<span class="material-symbols-outlined text-secondary-fixed-dim mb-4" style="font-variation-settings: 'FILL' 0;">bolt</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Cognitive Performance</h3>
+<p class="text-on-surface-variant text-sm opacity-60">Optimize neuro-focus for high-stakes deep work sessions.</p>
+</button>
+<button class="glass-panel p-8 text-left group hover:border-secondary-fixed-dim transition-all duration-300" onclick="nextStep(2, 'Stamina')">
+<span class="material-symbols-outlined text-secondary-fixed-dim mb-4" style="font-variation-settings: 'FILL' 0;">hourglass_empty</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">System Stamina</h3>
+<p class="text-on-surface-variant text-sm opacity-60">Sustainable output management for long-duration quests.</p>
+</button>
+<button class="glass-panel p-8 text-left group hover:border-secondary-fixed-dim transition-all duration-300" onclick="nextStep(2, 'Architecture')">
+<span class="material-symbols-outlined text-secondary-fixed-dim mb-4" style="font-variation-settings: 'FILL' 0;">architecture</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Routine Architecture</h3>
+<p class="text-on-surface-variant text-sm opacity-60">Structural redesign of daily operational protocols.</p>
+</button>
+<button class="glass-panel p-8 text-left group hover:border-secondary-fixed-dim transition-all duration-300" onclick="nextStep(2, 'Recovery')">
+<span class="material-symbols-outlined text-secondary-fixed-dim mb-4" style="font-variation-settings: 'FILL' 0;">rebase_edit</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Critical Recovery</h3>
+<p class="text-on-surface-variant text-sm opacity-60">High-speed system reboot after intensive burn cycles.</p>
+</button>
+</div>
+</div>
+<!-- Step 2: Intensity -->
+<div class="step-hidden flex flex-col items-center text-center space-y-12" id="step-2">
+<div class="space-y-2">
+<span class="font-label-sm text-label-sm text-secondary-fixed-dim uppercase tracking-widest">Calibration Phase 02</span>
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">Define your intensity level</h1>
+</div>
+<div class="w-full space-y-12">
+<div class="relative w-full h-24 flex items-center justify-between px-8">
+<!-- Custom Range Slider Emulation -->
+<div class="absolute inset-0 flex items-center px-4">
+<div class="w-full h-[1px] bg-primary/20"></div>
+</div>
+<input class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" id="intensitySlider" max="5" min="1" step="1" type="range" value="3"/>
+<!-- Visual Markers -->
+<div class="flex justify-between w-full relative z-10 pointer-events-none">
+<div class="flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-2">LOW</span>
+<div class="w-1 h-4 bg-primary/40"></div>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-2">NOMINAL</span>
+<div class="w-1 h-4 bg-primary/40"></div>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-secondary-fixed-dim mb-2">EXTREME</span>
+<div class="w-1 h-4 bg-secondary-fixed-dim shadow-[0_0_10px_rgba(0,219,233,1)]"></div>
+</div>
+</div>
+</div>
+<div class="font-data-lg text-data-lg text-secondary-fixed-dim tracking-[0.2em] transition-all" id="intensityDisplay">LEVEL: NOMINAL</div>
+</div>
+<div class="flex gap-4">
+<button class="px-8 py-3 border border-primary/20 font-label-sm text-label-sm text-on-surface uppercase tracking-widest hover:bg-surface-container transition-colors" onclick="prevStep(1)">Back</button>
+<button class="px-8 py-3 bg-secondary-fixed-dim text-surface-container-lowest font-label-sm text-label-sm font-bold uppercase tracking-widest glow-cyan hover:scale-105 transition-all" onclick="nextStep(3, 'Calibrating')">Initialize Process</button>
+</div>
+</div>
+<!-- Step 3: Success / Finalizing -->
+<div class="step-hidden flex flex-col items-center text-center space-y-8" id="step-3">
+<div class="relative w-48 h-48 mb-8">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#2D2F33" stroke-width="0.5"></circle>
+<circle class="transition-all duration-[3000ms] ease-out" cx="50" cy="50" fill="none" id="successCircle" r="45" stroke="#00dbe9" stroke-dasharray="283" stroke-dashoffset="283" stroke-width="1"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl text-secondary-fixed-dim animate-pulse">terminal</span>
+</div>
+</div>
+<div class="space-y-4">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">Calibration Complete</h1>
+<p class="font-body-md text-on-surface-variant max-w-sm mx-auto opacity-70">The NYXIS Operating System has been tuned to your parameters. Your environment is now ready for deep integration.</p>
+</div>
+<button class="px-12 py-4 bg-on-surface text-surface font-label-sm text-label-sm font-bold uppercase tracking-widest hover:bg-secondary-fixed-dim hover:text-surface transition-all">Enter Dashboard</button>
+</div>
+</section>
+<!-- Dynamic Data Footer -->
+<footer class="fixed bottom-0 w-full p-gutter flex justify-between items-end">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<div class="w-32 h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed-dim glow-cyan transition-all duration-500" id="progressBar" style="width: 33%"></div>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant">SYNC_STATUS: 33%</span>
+</div>
+<div class="font-label-sm text-[10px] text-on-tertiary-fixed-variant">CORE_TEMP: 32°C | BANDWIDTH: 4.8 GBPS</div>
+</div>
+<div class="text-right">
+<div class="font-data-lg text-data-lg text-primary/40 tracking-tighter" id="timestamp">12:04:45:01</div>
+<div class="font-label-sm text-[10px] text-on-tertiary-fixed-variant uppercase">Local System Time</div>
+</div>
+</footer>
+</main>
+<script>
+        // State Management
+        let currentStep = 1;
+        
+        function nextStep(step, val) {
+            document.getElementById(`step-${currentStep}`).classList.remove('step-active');
+            document.getElementById(`step-${currentStep}`).classList.add('step-hidden');
+            
+            setTimeout(() => {
+                currentStep = step;
+                document.getElementById(`step-${currentStep}`).classList.remove('step-hidden');
+                document.getElementById(`step-${currentStep}`).classList.add('step-active');
+                
+                const progress = (step / 3) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+
+                if(step === 3) {
+                    setTimeout(() => {
+                        document.getElementById('successCircle').style.strokeDashoffset = 0;
+                    }, 100);
+                }
+            }, 300);
+        }
+
+        function prevStep(step) {
+            document.getElementById(`step-${currentStep}`).classList.remove('step-active');
+            document.getElementById(`step-${currentStep}`).classList.add('step-hidden');
+            
+            setTimeout(() => {
+                currentStep = step;
+                document.getElementById(`step-${currentStep}`).classList.remove('step-hidden');
+                document.getElementById(`step-${currentStep}`).classList.add('step-active');
+                
+                const progress = (step / 3) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+            }, 300);
+        }
+
+        // Slider Interaction
+        const slider = document.getElementById('intensitySlider');
+        const display = document.getElementById('intensityDisplay');
+        const labels = ['MINIMAL', 'MODERATE', 'NOMINAL', 'ADVANCED', 'EXTREME'];
+
+        slider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            display.innerText = `LEVEL: ${labels[val - 1]}`;
+            display.style.letterSpacing = (val * 0.1) + 'em';
+            if(val > 4) {
+                display.classList.add('text-error');
+                display.classList.remove('text-secondary-fixed-dim');
+            } else {
+                display.classList.remove('text-error');
+                display.classList.add('text-secondary-fixed-dim');
+            }
+        });
+
+        // Background Canvas Animation
+        const canvas = document.getElementById('geometricCanvas');
+        const ctx = canvas.getContext('2d');
+        let dots = [];
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            dots = [];
+            for (let i = 0; i < 60; i++) {
+                dots.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#00dbe9';
+            ctx.lineWidth = 0.2;
+            ctx.beginPath();
+            
+            dots.forEach((dot, i) => {
+                dot.x += dot.vx;
+                dot.y += dot.vy;
+
+                if (dot.x < 0 || dot.x > canvas.width) dot.vx *= -1;
+                if (dot.y < 0 || dot.y > canvas.height) dot.vy *= -1;
+
+                dots.slice(i + 1).forEach(other => {
+                    const dx = dot.x - other.x;
+                    const dy = dot.y - other.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 150) {
+                        ctx.moveTo(dot.x, dot.y);
+                        ctx.lineTo(other.x, other.y);
+                    }
+                });
+            });
+            ctx.stroke();
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        draw();
+
+        // Clock
+        function updateTime() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            const ms = String(now.getMilliseconds()).padStart(3, '0').slice(0, 2);
+            document.getElementById('timestamp').innerText = `${h}:${m}:${s}:${ms}`;
+        }
+        setInterval(updateTime, 40);
+    </script>
+</body></html>

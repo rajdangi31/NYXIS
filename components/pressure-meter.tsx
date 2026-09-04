@@ -1,86 +1,83 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import { AnimatedBar } from '@/components/ui/animated-bar';
-import { ScrambleText } from '@/components/ui/scramble-text';
-import { COLORS, TYPOGRAPHY, SPACING } from '@/constants/design-tokens';
+import { Text } from '@/components/ui/text';
+import { MeterBar } from '@/components/system-shell';
+import { COLORS, pressureTone } from '@/constants/design-tokens';
 
 interface PressureMeterProps {
   pressure: number;
-  stateColor: string;
-  isPenaltyState: boolean;
-  isSoftLocked: boolean;
-  pulseOpacity: SharedValue<number>;
+  stateColor?: string;
+  isPenaltyState?: boolean;
+  isSoftLocked?: boolean;
+  pulseOpacity?: SharedValue<number>;
+  threshold?: number;
+  compact?: boolean;
 }
 
 export const PressureMeter: React.FC<PressureMeterProps> = ({
   pressure,
   stateColor,
-  isPenaltyState,
-  isSoftLocked,
+  isPenaltyState = false,
+  isSoftLocked = false,
   pulseOpacity,
+  threshold = 85,
+  compact = false,
 }) => {
-  const animatedPulse = useAnimatedStyle(() => ({ opacity: pulseOpacity.value }));
+  const safePressure = Math.min(100, Math.max(0, pressure));
+  const tone = pressureTone(safePressure);
+  const barColor = stateColor ?? tone.color;
+
+  const animatedPulse = useAnimatedStyle(() => ({
+    opacity: pulseOpacity?.value ?? 1,
+  }));
+
+  if (compact) {
+    return (
+      <View className="gap-2">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-sm text-muted-foreground">Pressure</Text>
+          <Text className="text-sm font-medium tabular-nums" style={{ color: barColor }}>
+            {safePressure}% · {tone.label}
+          </Text>
+        </View>
+        <MeterBar value={safePressure} color={barColor} />
+        {isPenaltyState && !isSoftLocked && pulseOpacity && (
+          <Animated.Text className="text-xs text-destructive" style={animatedPulse}>
+            Quest generation locked until pressure drops.
+          </Animated.Text>
+        )}
+        {isSoftLocked && pulseOpacity && (
+          <Animated.Text className="text-xs text-destructive" style={animatedPulse}>
+            Start recovery protocol to continue.
+          </Animated.Text>
+        )}
+      </View>
+    );
+  }
 
   return (
-    <View style={[styles.container, { borderColor: isPenaltyState ? COLORS.NEON_RED : COLORS.BORDER_DEFAULT }]}>
-      <View style={styles.headerRow}>
-        <Text style={[styles.label, { color: stateColor }]}>
-          <ScrambleText text="SHADOW PRESSURE" delay={100} />
+    <View className="gap-3">
+      <View className="flex-row items-center justify-between">
+        <Text className="text-sm text-muted-foreground">Shadow pressure</Text>
+        <Text className="text-lg font-semibold tabular-nums" style={{ color: barColor }}>
+          {safePressure}%
         </Text>
-        <Text style={[styles.value, { color: stateColor }]}>{pressure}%</Text>
       </View>
-      <AnimatedBar percentage={pressure} color={stateColor} />
-      {isPenaltyState && !isSoftLocked && (
-        <Animated.Text style={[styles.penaltyText, animatedPulse]}>
-          ⚠ PENALTY STATE: PATH GENERATION LOCKED ⚠
+      <MeterBar value={safePressure} color={barColor} />
+      {safePressure >= threshold && (
+        <Text className="text-xs text-destructive">Near collapse threshold ({threshold}%)</Text>
+      )}
+      {isPenaltyState && !isSoftLocked && pulseOpacity && (
+        <Animated.Text className="text-xs text-destructive" style={animatedPulse}>
+          Quest generation locked until pressure drops.
         </Animated.Text>
       )}
-      {isSoftLocked && (
-        <Animated.Text style={[styles.fatalText, animatedPulse]}>
-          {'[ FATAL ERROR: NO QUESTS REMAINING ]'}
+      {isSoftLocked && pulseOpacity && (
+        <Animated.Text className="text-xs text-destructive" style={animatedPulse}>
+          Start recovery protocol to continue.
         </Animated.Text>
       )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: COLORS.BG_ELEVATED,
-    borderWidth: 1,
-    padding: SPACING.XL,
-    marginBottom: SPACING.XL,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  label: {
-    fontSize: 11,
-    fontWeight: TYPOGRAPHY.WEIGHT.HEAVY,
-    letterSpacing: TYPOGRAPHY.SPACING.NORMAL,
-  },
-  value: {
-    fontSize: 11,
-    fontWeight: TYPOGRAPHY.WEIGHT.BOLD,
-    fontFamily: TYPOGRAPHY.MONO,
-  },
-  penaltyText: {
-    color: COLORS.NEON_RED,
-    fontSize: TYPOGRAPHY.SIZE.SMALL,
-    fontWeight: TYPOGRAPHY.WEIGHT.BLACK,
-    letterSpacing: TYPOGRAPHY.SPACING.NORMAL,
-    marginTop: SPACING.MD,
-    textAlign: 'center',
-  },
-  fatalText: {
-    color: COLORS.NEON_RED,
-    fontSize: TYPOGRAPHY.SIZE.BODY,
-    fontWeight: TYPOGRAPHY.WEIGHT.BLACK,
-    letterSpacing: TYPOGRAPHY.SPACING.WIDE,
-    marginTop: SPACING.MD,
-    textAlign: 'center',
-  },
-});

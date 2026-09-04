@@ -68,6 +68,27 @@ export interface BehaviorProfile {
   difficulty_cap: number;
 }
 
+export interface HunterContext {
+  user_id: string;
+  primary_aim: string;
+  current_conditions: string;
+  constraints: string;
+  available_time: string;
+  preferred_intensity: 'LOW' | 'BALANCED' | 'HIGH';
+  proof_preference: 'SYSTEM_ASSIGNED' | 'TEXT' | 'URL' | 'PHOTO' | 'METRIC' | null;
+  updated_at: string;
+  created_at: string;
+}
+
+export interface HunterContextInput {
+  primary_aim: string;
+  current_conditions: string;
+  constraints: string;
+  available_time: string;
+  preferred_intensity: HunterContext['preferred_intensity'];
+  proof_preference?: HunterContext['proof_preference'];
+}
+
 // ─── API RESPONSE PAYLOADS ──────────────────────────────────
 export interface RareReward {
   type: RewardType;
@@ -81,6 +102,7 @@ export interface QuestCompletionResult {
   pressure_relieved: number;
   system_state: SystemState;
   ai_adjustment: number;
+  proof_audit?: ProofEvalResult;
   rare_reward?: RareReward | null;
 }
 
@@ -149,5 +171,11 @@ export interface EvalResult {
 
 export interface ProofEvalResult {
   success: boolean;
+  accepted: boolean;
+  score: number;
+  reason: string;
+  missing: string[];
   adjustment: number;
+  /** Set when the edge function fails (e.g. missing secrets, 4xx/5xx). */
+  error?: string;
 }

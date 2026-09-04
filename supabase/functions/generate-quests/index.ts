@@ -27,6 +27,11 @@ serve(async (req) => {
 
     const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single()
     const { data: logs } = await supabaseClient.from('quest_logs').select('completed').eq('user_id', user.id).order('timestamp', { ascending: false }).limit(7)
+    const { data: hunterContext } = await supabaseClient
+      .from('hunter_contexts')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle()
 
     let successRate = 100;
     if (logs && logs.length > 0) {
@@ -49,11 +54,21 @@ serve(async (req) => {
     // ==========================================
 
     const { data: strategistRes, error: strategistErr } = await supabaseClient.functions.invoke('strategize-path', {
-      // Pass memories into the payload
-      body: { goal, stats: { str: profile.str, int: profile.int, dex: profile.dex, vit: profile.vit, wis: profile.wis }, pressure: profile.pressure_level, performance: successRate, behavior, memories }
+      body: { goal, stats: { str: profile.str, int: profile.int, dex: profile.dex, vit: profile.vit, wis: profile.wis }, pressure: profile.pressure_level, performance: successRate, behavior, memories, hunterContext }
     });
 
-    if (strategistErr || !strategistRes.success) throw new Error(`Strategist Failure: ${strategistErr?.message || strategistRes.error}`);
+    if (strategistErr) {
+      let detail = strategistErr.message;
+      if (strategistErr.context instanceof Response) {
+        try {
+          const body = await strategistErr.context.json();
+          detail = body.error || body.message || detail;
+        } catch { /* use default message */ }
+      }
+      throw new Error(`Strategist Failure: ${detail}`);
+    }
+    
+    if (!strategistRes.success) throw new Error(`Strategist Failure: ${strategistRes.error}`);
     const strategy = strategistRes.strategy;
 
     let enforcementPrompt = "";
@@ -77,8 +92,24 @@ serve(async (req) => {
     const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY')
     const apiUrl = 'https://openrouter.ai/api/v1/chat/completions'
 
-    // NEW: We specifically request `depends_on_index` to build progression logic natively
-    const systemPrompt = `You are The Architect of the NYXIS system. Generate exactly 10 actionable quests for: "${goal}".
+    const contextPrompt = hunterContext ? `
+HUNTER INTAKE:
+- Primary Aim: ${hunterContext.primary_aim}
+- Current Conditions: ${hunterContext.current_conditions || 'Not specified'}
+- Constraints: ${hunterContext.constraints || 'Not specified'}
+- Available Time: ${hunterContext.available_time || 'Not specified'}
+- Preferred Intensity: ${hunterContext.preferred_intensity}
+` : `
+HUNTER INTAKE:
+- No intake record found. Generate conservative onboarding-caliber directives and require text proof for every quest.
+`;
+
+    const proofTypes = "text, url, photo, github, fitbit";
+
+    const systemPrompt = `You are The Architect of the NYXIS system. Generate exactly 10 serious, concrete quests for: "${goal}".
+
+The quests must be personalized to the Hunter and must be strict enough that completion requires evidence.
+${contextPrompt}
 
 CRITICAL STRATEGY DIRECTIVES:
 - Focus Area: ${strategy.focus_area}
@@ -86,6 +117,21 @@ CRITICAL STRATEGY DIRECTIVES:
 - Quest Bias: ${strategy.quest_bias}
 - Progression Chains: If tasks logically follow one another (e.g. Step A must happen before Step B), use 'depends_on_index' to link them.
 ${enforcementPrompt}
+
+STRICTNESS RULES:
+- Every quest MUST require proof. Set verification_required to true for all 10 quests.
+- verification_type MUST be one of: ${proofTypes}. Never use "none".
+- Choose verification_type by task domain, not user preference.
+- Code/software tasks MUST use "github" and must mention repository URL plus commit or pull request link in the description.
+- Exercise/fitness tasks SHOULD use "fitbit" when metrics are traceable, otherwise "photo"; descriptions must request duration, reps, sets, distance, steps, or heart-rate zone.
+- Writing/design/research/build artifacts SHOULD use "url" when a shareable artifact can exist.
+- Physical environment, chores, meal prep, setup, or before/after tasks SHOULD use "photo".
+- Use "text" only when no stronger proof is realistic, and require specific measurable details.
+- Avoid vague quests like "reflect", "research", "exercise", or "practice" unless the output is measurable.
+- Each description must include an exact deliverable, time box, quantity, or acceptance criterion.
+- At least 6 quests must include a measurable result in the description.
+- At least 3 quests should require external or artifact proof (url, github, photo, or fitbit) when compatible with the goal.
+- Keep quests achievable within the Hunter's stated time and constraints.
 
 Output a raw JSON object with a single key "quests" containing an array of 10 objects:
 {
@@ -101,6 +147,12 @@ Output a raw JSON object with a single key "quests" containing an array of 10 ob
       body: JSON.stringify({ model: "openai/gpt-4o-mini", response_format: { type: "json_object" }, messages: [{ role: "system", content: systemPrompt }] })
     })
 
+    if (!aiResponse.ok) {
+      const errorData = await aiResponse.json()
+      const errorMsg = errorData.error?.message || errorData.error || 'AI quest generation failed'
+      throw new Error(`Generator Error: ${errorMsg}`)
+    }
+
     const aiData = await aiResponse.json()
     let parsedData: { quests: any[] }
     try {
@@ -108,6 +160,85 @@ Output a raw JSON object with a single key "quests" containing an array of 10 ob
     } catch {
       throw new Error('AI returned unparseable response')
     }
+
+    if (!parsedData || !Array.isArray(parsedData.quests) || parsedData.quests.length === 0) {
+      throw new Error('AI response structure is missing the quests list or is empty')
+    }
+
+    // Sanitize and validate quests schema
+    parsedData.quests = parsedData.quests.slice(0, 10).map((q: any, index: number) => {
+      if (typeof q !== 'object' || q === null) {
+        return {
+          title: `Quest Directive ${index + 1}`,
+          description: "No details provided.",
+          type: "DAILY",
+          xp_reward: 50,
+          stat_focus: "NONE",
+          difficulty_rating: 3,
+          verification_required: true,
+          verification_type: "text",
+          depends_on_index: null
+        }
+      }
+
+      const title = typeof q.title === 'string' ? q.title.trim() : `Quest Directive ${index + 1}`
+      const description = typeof q.description === 'string' ? q.description.trim() : "No details provided."
+      
+      let type = "DAILY"
+      if (typeof q.type === 'string') {
+        const t = q.type.toUpperCase().trim()
+        if (["DAILY", "SIDE", "RANK_UP", "EMERGENCY"].includes(t)) {
+          type = t
+        }
+      }
+
+      let xp_reward = 50
+      if (typeof q.xp_reward === 'number') {
+        xp_reward = Math.max(0, q.xp_reward)
+      } else if (typeof q.xp_reward === 'string') {
+        const val = parseInt(q.xp_reward, 10)
+        if (!isNaN(val)) xp_reward = Math.max(0, val)
+      }
+
+      let stat_focus = "NONE"
+      if (typeof q.stat_focus === 'string') {
+        const sf = q.stat_focus.toUpperCase().trim()
+        if (["STR", "INT", "DEX", "VIT", "WIS", "NONE"].includes(sf)) {
+          stat_focus = sf
+        }
+      }
+
+      let difficulty_rating = 3
+      if (typeof q.difficulty_rating === 'number') {
+        difficulty_rating = Math.max(1, Math.min(10, q.difficulty_rating))
+      } else if (typeof q.difficulty_rating === 'string') {
+        const val = parseInt(q.difficulty_rating, 10)
+        if (!isNaN(val)) difficulty_rating = Math.max(1, Math.min(10, val))
+      }
+
+      const verification_required = typeof q.verification_required === 'boolean' ? q.verification_required : true
+      const verification_type = typeof q.verification_type === 'string' ? q.verification_type.toLowerCase().trim() : 'text'
+
+      let depends_on_index = null
+      if (typeof q.depends_on_index === 'number') {
+        depends_on_index = q.depends_on_index
+      } else if (typeof q.depends_on_index === 'string') {
+        const val = parseInt(q.depends_on_index, 10)
+        if (!isNaN(val)) depends_on_index = val
+      }
+
+      return {
+        title,
+        description,
+        type,
+        xp_reward,
+        stat_focus,
+        difficulty_rating,
+        verification_required,
+        verification_type,
+        depends_on_index
+      }
+    })
 
     const { data: pathData, error: pathError } = await supabaseClient.from('paths').insert({ user_id: user.id, goal: goal }).select().single()
     if (pathError) throw new Error(`Database Error (Paths): ${pathError.message}`)
@@ -135,8 +266,8 @@ Output a raw JSON object with a single key "quests" containing an array of 10 ob
         xp_reward: finalXp,
         stat_focus: q.stat_focus,
         difficulty_rating: finalDiff,
-        verification_required: q.verification_required || false,
-        verification_type: q.verification_type || null,
+        verification_required: true,
+        verification_type: determineVerificationType(q, goal, hunterContext),
         status: 'PENDING',
         __depends_on_index: q.depends_on_index // Temp holding variable
       }
@@ -149,7 +280,6 @@ Output a raw JSON object with a single key "quests" containing an array of 10 ob
     });
 
     // 2. Insert quests and immediately SELECT them to get their UUIDs
-    // Supabase array inserts return rows in the exact order they were provided.
     const { data: insertedQuests, error: questsError } = await supabaseClient.from('quests').insert(dbQuests).select()
     if (questsError) throw new Error(`Database Error (Quests): ${questsError.message}`)
 
@@ -160,11 +290,10 @@ Output a raw JSON object with a single key "quests" containing an array of 10 ob
 
     questsToPrepare.forEach((q: any, i: number) => {
       const depIndex = q.__depends_on_index;
-      // Verify the AI returned a valid index (not itself, not out of bounds)
       if (depIndex !== null && depIndex !== undefined && typeof depIndex === 'number' && depIndex >= 0 && depIndex < insertedQuests.length && depIndex !== i) {
         dependenciesToInsert.push({
-          quest_id: insertedQuests[i].id,               // The quest that is locked
-          depends_on_quest_id: insertedQuests[depIndex].id // The quest that must be cleared first
+          quest_id: insertedQuests[i].id,
+          depends_on_quest_id: insertedQuests[depIndex].id
         });
       }
     });
@@ -181,3 +310,60 @@ Output a raw JSON object with a single key "quests" containing an array of 10 ob
     return new Response(JSON.stringify({ success: false, error: error.message }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 })
   }
 })
+
+function determineVerificationType(quest: Record<string, unknown>, goal: string, hunterContext?: Record<string, unknown> | null): string {
+  const text = [
+    goal,
+    hunterContext?.primary_aim,
+    quest.title,
+    quest.description,
+    quest.stat_focus,
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  if (containsAny(text, [
+    'github', 'git ', 'commit', 'pull request', 'pr ', 'repo', 'repository', 'code', 'coding',
+    'software', 'bug', 'feature', 'test suite', 'typescript', 'javascript', 'python', 'api',
+    'component', 'app', 'website', 'deploy'
+  ])) {
+    return 'github';
+  }
+
+  if (containsAny(text, [
+    'run', 'running', 'walk', 'walking', 'steps', 'cardio', 'workout', 'exercise', 'gym',
+    'lift', 'lifting', 'reps', 'sets', 'squat', 'pushup', 'pullup', 'plank', 'bike',
+    'cycling', 'swim', 'heart rate', 'calories', 'fitbit', 'strava'
+  ])) {
+    return containsAny(text, ['steps', 'run', 'walk', 'cardio', 'heart rate', 'calories', 'distance', 'fitbit', 'strava'])
+      ? 'fitbit'
+      : 'photo';
+  }
+
+  if (containsAny(text, [
+    'document', 'doc', 'draft', 'essay', 'article', 'post', 'publish', 'portfolio', 'design',
+    'figma', 'notion', 'spreadsheet', 'sheet', 'slides', 'presentation', 'demo', 'landing page',
+    'resume', 'application'
+  ])) {
+    return 'url';
+  }
+
+  if (containsAny(text, [
+    'clean', 'organize', 'room', 'desk', 'equipment', 'meal', 'cook', 'prep', 'setup',
+    'before', 'after', 'repair', 'install', 'arrange'
+  ])) {
+    return 'photo';
+  }
+
+  return normalizeVerificationType(quest.verification_type);
+}
+
+function containsAny(value: string, needles: string[]): boolean {
+  return needles.some(needle => value.includes(needle));
+}
+
+function normalizeVerificationType(input: unknown): string {
+  const allowed = new Set(['text', 'url', 'photo', 'github', 'fitbit']);
+  const value = typeof input === 'string' ? input.toLowerCase() : '';
+  if (allowed.has(value) && value !== 'none') return value;
+
+  return 'text';
+}

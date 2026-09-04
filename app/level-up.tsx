@@ -10,14 +10,15 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { COLORS, TYPOGRAPHY, SPACING } from '@/constants/design-tokens';
+import { COLORS, TYPOGRAPHY, SPACING, RADIUS } from '@/constants/design-tokens';
+import { GridBackdrop, LiquidGlass } from '@/components/liquid-glass';
 
 export default function LevelUpScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
-  const oldLevel = Number(params.oldLevel) || 4;
-  const newLevel = Number(params.newLevel) || 5;
+  const oldLevel = params.oldLevel ? Number(params.oldLevel) : 4;
+  const newLevel = params.newLevel ? Number(params.newLevel) : 5;
 
   const bgOpacity = useSharedValue(0);
   const textScale = useSharedValue(0.2);
@@ -48,8 +49,7 @@ export default function LevelUpScreen() {
 
   return (
     <Animated.View style={[styles.container, animatedBg]}>
-      <View style={styles.ambientGlowTop} />
-      <View style={styles.ambientGlowBottom} />
+      <GridBackdrop />
 
       <View style={styles.content}>
         <Animated.View style={animatedTitle}>
@@ -57,11 +57,18 @@ export default function LevelUpScreen() {
           <Text style={styles.mainTitle}>LEVEL UP</Text>
         </Animated.View>
 
-        <Animated.View style={[styles.detailsBox, animatedDetails]}>
+        <Animated.View style={animatedDetails}>
+          <LiquidGlass variant="strong" tint="cyan" radius={RADIUS.XXL} style={styles.detailsShell} contentStyle={styles.detailsBox}>
           <View style={styles.levelTransition}>
-            <Text style={styles.oldLevel}>LVL {oldLevel}</Text>
-            <Text style={styles.arrow}>{'>>'}</Text>
-            <Text style={styles.newLevel}>LVL {newLevel}</Text>
+            <View style={styles.levelBadge}>
+              <Text style={styles.levelLabel}>LVL</Text>
+              <Text style={styles.levelVal}>{oldLevel}</Text>
+            </View>
+            <Text style={styles.arrow}>→</Text>
+            <View style={[styles.levelBadge, styles.levelBadgeActive]}>
+              <Text style={[styles.levelLabel, { color: COLORS.NEON_CYAN }]}>LVL</Text>
+              <Text style={[styles.levelVal, { color: COLORS.NEON_GREEN }]}>{newLevel}</Text>
+            </View>
           </View>
 
           <View style={styles.separator} />
@@ -83,10 +90,11 @@ export default function LevelUpScreen() {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
               router.back();
             }}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            <Text style={styles.btnText}>[ ACCEPT POWER ]</Text>
+            <Text style={styles.btnText}>ACCEPT POWER</Text>
           </TouchableOpacity>
+          </LiquidGlass>
         </Animated.View>
       </View>
     </Animated.View>
@@ -95,29 +103,73 @@ export default function LevelUpScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.BG_VOID, justifyContent: 'center', alignItems: 'center' },
-  ambientGlowTop: { position: 'absolute', top: -100, width: 400, height: 400, backgroundColor: COLORS.alpha(COLORS.NEON_CYAN, 0.1), borderRadius: 200 },
-  ambientGlowBottom: { position: 'absolute', bottom: -100, right: -50, width: 300, height: 300, backgroundColor: COLORS.alpha(COLORS.NEON_PURPLE, 0.15), borderRadius: 150 },
 
   content: { alignItems: 'center', width: '100%', paddingHorizontal: SPACING.XL, zIndex: 10 },
 
   glitchText: { color: COLORS.NEON_CYAN, fontSize: TYPOGRAPHY.SIZE.HEADING, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, letterSpacing: TYPOGRAPHY.SPACING.MEGA, textAlign: 'center', marginBottom: 10, textShadowColor: COLORS.NEON_CYAN, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 10 },
   mainTitle: { color: COLORS.TEXT_PRIMARY, fontSize: TYPOGRAPHY.SIZE.MEGA, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, textAlign: 'center', textShadowColor: 'rgba(255, 255, 255, 0.5)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 20, letterSpacing: TYPOGRAPHY.SPACING.NORMAL },
 
-  detailsBox: { width: '100%', backgroundColor: 'rgba(6, 6, 12, 0.8)', borderWidth: 1, borderColor: COLORS.NEON_CYAN, padding: SPACING.XXL, marginTop: SPACING.HEADER_TOP, shadowColor: COLORS.NEON_CYAN, shadowOffset: { width: 0, height: 0 }, shadowRadius: 20, shadowOpacity: 0.2 },
+  detailsShell: {
+    width: '100%',
+    marginTop: SPACING.HEADER_TOP,
+    borderColor: COLORS.alpha(COLORS.NEON_CYAN, 0.3),
+    shadowColor: COLORS.NEON_CYAN,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 24,
+    shadowOpacity: 0.22,
+  },
+  detailsBox: {
+    width: '100%',
+    padding: SPACING.XXL,
+  },
 
   levelTransition: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: SPACING.XL },
-  oldLevel: { color: COLORS.TEXT_SECONDARY, fontSize: TYPOGRAPHY.SIZE.DISPLAY, fontWeight: TYPOGRAPHY.WEIGHT.BOLD, fontFamily: TYPOGRAPHY.MONO },
-  arrow: { color: COLORS.NEON_CYAN, fontSize: SPACING.XL, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, marginHorizontal: SPACING.XL, letterSpacing: TYPOGRAPHY.SPACING.NORMAL },
-  newLevel: { color: COLORS.NEON_GREEN, fontSize: TYPOGRAPHY.SIZE.HERO, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, fontFamily: TYPOGRAPHY.MONO, textShadowColor: 'rgba(0, 255, 163, 0.8)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 10 },
+  levelBadge: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    backgroundColor: COLORS.alpha(COLORS.TEXT_PRIMARY, 0.05),
+    paddingHorizontal: SPACING.MD,
+    paddingVertical: SPACING.XS,
+    borderRadius: RADIUS.MD,
+    borderWidth: 1,
+    borderColor: COLORS.BORDER_SUBTLE,
+  },
+  levelBadgeActive: {
+    backgroundColor: COLORS.alpha(COLORS.NEON_CYAN, 0.08),
+    borderColor: COLORS.alpha(COLORS.NEON_CYAN, 0.3),
+  },
+  levelLabel: {
+    color: COLORS.TEXT_SECONDARY,
+    fontSize: TYPOGRAPHY.SIZE.TINY,
+    fontWeight: TYPOGRAPHY.WEIGHT.HEAVY,
+    marginRight: 4,
+  },
+  levelVal: {
+    color: COLORS.TEXT_PRIMARY,
+    fontSize: TYPOGRAPHY.SIZE.DISPLAY,
+    fontWeight: TYPOGRAPHY.WEIGHT.BLACK,
+    fontFamily: TYPOGRAPHY.MONO,
+  },
+  arrow: { color: COLORS.NEON_CYAN, fontSize: TYPOGRAPHY.SIZE.HEADING, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, marginHorizontal: SPACING.XL },
 
   separator: { height: 1, backgroundColor: COLORS.BORDER_DEFAULT, width: '100%', marginVertical: SPACING.XL },
 
   statsHeader: { color: COLORS.TEXT_SECONDARY, fontSize: TYPOGRAPHY.SIZE.SMALL, fontWeight: TYPOGRAPHY.WEIGHT.HEAVY, letterSpacing: TYPOGRAPHY.SPACING.WIDE, marginBottom: 15 },
 
-  statRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  statName: { color: COLORS.TEXT_PRIMARY, fontSize: TYPOGRAPHY.SIZE.LARGE, fontWeight: TYPOGRAPHY.WEIGHT.BOLD, letterSpacing: TYPOGRAPHY.SPACING.TIGHT },
-  statBuff: { color: COLORS.NEON_GREEN, fontSize: TYPOGRAPHY.SIZE.HEADING, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, fontFamily: TYPOGRAPHY.MONO },
+  statRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  statName: { color: COLORS.TEXT_PRIMARY, fontSize: TYPOGRAPHY.SIZE.MEDIUM, fontWeight: TYPOGRAPHY.WEIGHT.BOLD },
+  statBuff: { color: COLORS.NEON_GREEN, fontSize: TYPOGRAPHY.SIZE.LARGE, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, fontFamily: TYPOGRAPHY.MONO },
 
-  btnAcknowledge: { marginTop: SPACING.XXXL, backgroundColor: COLORS.NEON_CYAN, paddingVertical: 18, alignItems: 'center', shadowColor: COLORS.NEON_CYAN, shadowOffset: { width: 0, height: 0 }, shadowRadius: 15, shadowOpacity: 0.6 },
-  btnText: { color: COLORS.BG_PRIMARY, fontSize: TYPOGRAPHY.SIZE.LARGE, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, letterSpacing: TYPOGRAPHY.SPACING.WIDE },
+  btnAcknowledge: {
+    marginTop: SPACING.XXXL,
+    backgroundColor: COLORS.NEON_CYAN,
+    paddingVertical: 16,
+    alignItems: 'center',
+    borderRadius: RADIUS.XL,
+    shadowColor: COLORS.NEON_CYAN,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 12,
+    shadowOpacity: 0.3,
+  },
+  btnText: { color: COLORS.BG_PRIMARY, fontSize: TYPOGRAPHY.SIZE.MEDIUM, fontWeight: TYPOGRAPHY.WEIGHT.BLACK, letterSpacing: TYPOGRAPHY.SPACING.WIDE },
 });

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NYXIS OS - Quests</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Geist:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .glass-panel {
+            background: rgba(45, 47, 51, 0.4);
+            backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(0, 219, 233, 0.1);
+        }
+        .quest-glow-cyan {
+            box-shadow: 0 0 20px rgba(0, 219, 233, 0.15);
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(0, 219, 233, 0.05), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .pulse-border {
+            animation: pulse-cyan 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+        @keyframes pulse-cyan {
+            0%, 100% { border-color: rgba(255, 180, 171, 0.2); }
+            50% { border-color: rgba(255, 180, 171, 0.8); box-shadow: 0 0 10px rgba(255, 180, 171, 0.3); }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#0e0e0e",
+                        "inverse-primary": "#5e5e61",
+                        "surface-tint": "#c7c6c9",
+                        "background": "#141313",
+                        "on-tertiary-container": "#797a7f",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed-variant": "#45474b",
+                        "secondary-fixed": "#7df4ff",
+                        "tertiary-fixed": "#e2e2e7",
+                        "on-tertiary-fixed": "#1a1c1f",
+                        "primary-container": "#0b0c0e",
+                        "on-secondary-container": "#00686f",
+                        "secondary-fixed-dim": "#00dbe9",
+                        "primary-fixed": "#e3e2e5",
+                        "surface-dim": "#141313",
+                        "on-secondary-fixed-variant": "#004f54",
+                        "on-primary-fixed": "#1b1c1e",
+                        "tertiary": "#c6c6cb",
+                        "secondary": "#d3fbff",
+                        "error": "#ffb4ab",
+                        "on-surface": "#e5e2e1",
+                        "primary": "#c7c6c9",
+                        "tertiary-fixed-dim": "#c6c6cb",
+                        "inverse-on-surface": "#313030",
+                        "secondary-container": "#00eefc",
+                        "on-primary-container": "#7a7a7c",
+                        "inverse-surface": "#e5e2e1",
+                        "outline-variant": "#45474a",
+                        "surface-container-highest": "#353434",
+                        "on-surface-variant": "#c6c6ca",
+                        "surface-variant": "#353434",
+                        "surface": "#141313",
+                        "on-primary-fixed-variant": "#464749",
+                        "on-tertiary": "#2e3034",
+                        "tertiary-container": "#0a0c10",
+                        "outline": "#909094",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "on-background": "#e5e2e1",
+                        "surface-bright": "#3a3939",
+                        "on-primary": "#303033",
+                        "surface-container": "#201f1f",
+                        "on-secondary-fixed": "#002022",
+                        "on-secondary": "#00363a",
+                        "surface-container-low": "#1c1b1b",
+                        "on-error": "#690005",
+                        "primary-fixed-dim": "#c7c6c9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "max-width": "1440px",
+                        "margin-desktop": "48px",
+                        "gutter": "16px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "data-lg": ["JetBrains Mono"],
+                        "display-lg-mobile": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-md": ["Geist"],
+                        "label-sm": ["JetBrains Mono"],
+                        "display-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "data-lg": ["20px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-sm": ["11px", {"lineHeight": "1.4", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md selection:bg-secondary-container/30">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full bg-surface/40 backdrop-blur-xl border-b border-primary/20 shadow-[0_0_15px_rgba(0,219,233,0.1)] z-50 flex justify-between items-center px-margin-mobile h-16">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed/20 border border-secondary-fixed/40 flex items-center justify-center overflow-hidden">
+<img alt="Profile" class="w-full h-full" data-alt="A stylized digital avatar of a high-tech architect with glowing ocular implants, wearing a sleek charcoal turtle neck. The background is a dark obsidian gradient with faint cyan grid patterns. The aesthetic is clean, cinematic, and elite, using sharp focus and professional lighting to emphasize a sense of intelligent authority." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaekFUdAfExbVkeQXvJAKoB4yCxjOm2LnhphTfV7KomYVw5i1LRjJiugszbUhh9CsoDz6gPOUAU0zUvQIf2j4851puDTr_eftc2ZXW-ewO92BEC-skmt5WmFNFDZgyuaNTXtHOe-n3k7vU6tb5RQiuyD-Aw-2YcaaEPut8KF4RNohFXFdK_z_M9qieUeerfXYKp9j0UwQc62vTuLDy-900uEoog_0hTCTkUEORSvPv316_rzk9fsOfoWhB-_ycQ3TwwkNxk1E8HwhT"/>
+</div>
+<span class="text-headline-md font-headline-md tracking-tighter text-primary">NYXIS OS</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-primary hover:text-secondary-fixed transition-colors">notifications</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
+<!-- Dashboard Header -->
+<div class="mb-10">
+<h1 class="text-display-lg-mobile md:text-display-lg font-display-lg text-secondary-fixed-dim">Quests</h1>
+<p class="text-on-surface-variant font-label-sm max-w-md">System protocols active. High-priority objectives identified for immediate execution.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Prioritized 'Next Best' Quest (Bento Style) -->
+<section class="md:col-span-8">
+<div class="glass-panel rounded-xl p-6 relative overflow-hidden quest-glow-cyan border-l-4 border-l-secondary-fixed transition-all hover:scale-[1.01]">
+<div class="absolute top-0 right-0 p-4">
+<span class="text-label-sm font-label-sm bg-secondary-container text-on-secondary px-3 py-1 rounded-full uppercase tracking-widest">Priority 01</span>
+</div>
+<div class="flex flex-col h-full gap-4">
+<div class="flex items-center gap-2 text-secondary-fixed">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="font-label-sm text-label-sm uppercase tracking-tighter">Current Objective</span>
+</div>
+<h2 class="text-headline-md font-headline-md text-on-surface">Neural Pathway Reconstruction</h2>
+<p class="text-on-surface-variant text-body-md max-w-xl">Deep architectural overhaul of the primary data ingestion pipeline. Optimize for sub-10ms latency under 90% load.</p>
+<div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="flex flex-col">
+<span class="text-label-sm font-label-sm text-on-tertiary-fixed-variant uppercase">Difficulty</span>
+<div class="flex text-secondary-fixed gap-1">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]">star</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="text-label-sm font-label-sm text-on-tertiary-fixed-variant uppercase">Focus</span>
+<span class="text-data-lg font-data-lg text-primary">INT</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-sm font-label-sm text-on-tertiary-fixed-variant uppercase">XP Reward</span>
+<span class="text-data-lg font-data-lg text-secondary-fixed-dim">2,400</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-sm font-label-sm text-on-tertiary-fixed-variant uppercase">Proof</span>
+<span class="text-data-lg font-data-lg text-primary">GITHUB</span>
+</div>
+</div>
+<div class="mt-6 flex items-center justify-between border-t border-primary/10 pt-6">
+<div class="flex items-center gap-4">
+<div class="w-32 h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed-dim w-3/4 shadow-[0_0_8px_rgba(0,219,233,0.5)]"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">75% COMPLETE</span>
+</div>
+<button class="bg-secondary-container text-on-secondary px-8 py-3 rounded-lg font-label-sm text-label-sm uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all">Execute Quest</button>
+</div>
+</div>
+<div class="shimmer absolute inset-0 pointer-events-none opacity-20"></div>
+</div>
+</section>
+<!-- Status HUD (Small Bento) -->
+<aside class="md:col-span-4 flex flex-col gap-gutter">
+<div class="glass-panel rounded-xl p-6 flex flex-col gap-4">
+<h3 class="text-label-sm font-label-sm text-on-tertiary-fixed-variant uppercase tracking-widest">Active Stats</h3>
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<span class="text-label-sm font-label-sm">COGNITION</span>
+<span class="text-data-lg font-data-lg text-secondary-fixed">88</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed w-[88%]"></div>
+</div>
+<div class="flex justify-between items-end">
+<span class="text-label-sm font-label-sm">VITALITY</span>
+<span class="text-data-lg font-data-lg text-on-error">42</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error w-[42%]"></div>
+</div>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-6 border-dashed border-primary/20 flex items-center justify-center h-full">
+<div class="text-center">
+<span class="material-symbols-outlined text-on-surface-variant text-4xl mb-2">analytics</span>
+<p class="text-label-sm font-label-sm text-on-tertiary-fixed-variant">System Analysis: Offline</p>
+</div>
+</div>
+</aside>
+<!-- Standard Quest List Header -->
+<div class="md:col-span-12 mt-8 mb-2 flex items-center justify-between">
+<h3 class="text-headline-md font-headline-md text-primary">Available Modules</h3>
+<div class="flex gap-2">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-2">filter_list</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-2">search</button>
+</div>
+</div>
+<!-- Quest Grid -->
+<!-- Available -->
+<div class="md:col-span-4">
+<div class="glass-panel rounded-xl p-5 hover:border-secondary-fixed/40 transition-all cursor-pointer group">
+<div class="flex justify-between mb-4">
+<span class="material-symbols-outlined text-secondary-fixed group-hover:scale-110 transition-transform">fitness_center</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">STR +12</span>
+</div>
+<h4 class="font-headline-md text-body-md text-on-surface mb-2">Limbic Overload</h4>
+<p class="text-label-sm font-label-sm text-on-surface-variant line-clamp-2 mb-4">High-intensity functional training session. Core focus.</p>
+<div class="flex justify-between items-center text-label-sm">
+<div class="flex text-secondary-fixed-dim gap-0.5">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px]">star</span>
+</div>
+<span class="text-primary">PHOTO PROOF</span>
+</div>
+</div>
+</div>
+<!-- Proof Required -->
+<div class="md:col-span-4">
+<div class="glass-panel rounded-xl p-5 border-error/30 pulse-border transition-all cursor-pointer">
+<div class="flex justify-between mb-4">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="text-label-sm font-label-sm text-error">PENDING</span>
+</div>
+<h4 class="font-headline-md text-body-md text-on-surface mb-2">Data Scrubbing</h4>
+<p class="text-label-sm font-label-sm text-on-surface-variant line-clamp-2 mb-4">Audit social graphs and remove legacy metadata. Privacy focus.</p>
+<div class="flex justify-between items-center">
+<span class="text-label-sm font-label-sm text-on-tertiary-fixed-variant">URL LINK</span>
+<button class="text-label-sm font-label-sm text-error border border-error/30 px-3 py-1 rounded hover:bg-error/10 transition-colors">Submit Proof</button>
+</div>
+</div>
+</div>
+<!-- Available -->
+<div class="md:col-span-4">
+<div class="glass-panel rounded-xl p-5 hover:border-secondary-fixed/40 transition-all cursor-pointer group">
+<div class="flex justify-between mb-4">
+<span class="material-symbols-outlined text-secondary-fixed">menu_book</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">INT +18</span>
+</div>
+<h4 class="font-headline-md text-body-md text-on-surface mb-2">Deep Theory Sync</h4>
+<p class="text-label-sm font-label-sm text-on-surface-variant line-clamp-2 mb-4">Analyze 'The Sovereign Individual' and summarize core tenets.</p>
+<div class="flex justify-between items-center text-label-sm">
+<div class="flex text-secondary-fixed-dim gap-0.5">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-primary">TEXT INPUT</span>
+</div>
+</div>
+</div>
+<!-- Locked Quests -->
+<div class="md:col-span-4 opacity-40">
+<div class="glass-panel rounded-xl p-5 grayscale">
+<div class="flex justify-between mb-4">
+<span class="material-symbols-outlined">lock</span>
+<span class="text-label-sm font-label-sm">LOCKED</span>
+</div>
+<h4 class="font-headline-md text-body-md text-on-surface mb-2">Hardware Integration</h4>
+<p class="text-label-sm font-label-sm text-on-surface-variant line-clamp-2 mb-4">Unlock at User Level 12. Biometric feedback required.</p>
+</div>
+</div>
+<div class="md:col-span-4 opacity-40">
+<div class="glass-panel rounded-xl p-5 grayscale">
+<div class="flex justify-between mb-4">
+<span class="material-symbols-outlined">lock</span>
+<span class="text-label-sm font-label-sm">LOCKED</span>
+</div>
+<h4 class="font-headline-md text-body-md text-on-surface mb-2">Quantum Simulation</h4>
+<p class="text-label-sm font-label-sm text-on-surface-variant line-clamp-2 mb-4">Unlock by completing 'Deep Theory Sync'.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface-container/40 backdrop-blur-xl border-t border-primary/10 flex justify-around items-center px-4 pb-4 pt-2 rounded-t-xl shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-on-tertiary-fixed-variant opacity-60 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">rocket_launch</span>
+<span class="text-label-sm font-label-sm mt-1">Mission</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-container drop-shadow-[0_0_8px_rgba(0,238,252,0.5)] translate-y-[-2px] transition-transform" href="#">
+<span class="material-symbols-outlined">ads_click</span>
+<span class="text-label-sm font-label-sm mt-1">Quests</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-fixed-variant opacity-60 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-sm font-label-sm mt-1">Profile</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-fixed-variant opacity-60 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="text-label-sm font-label-sm mt-1">System</span>
+</a>
+</nav>
+<!-- Background Subtle Atmospheric Glow -->
+<div class="fixed top-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary-fixed/5 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="fixed bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-error/5 rounded-full blur-[120px] pointer-events-none"></div>
+<script>
+        // Micro-interactions for Quest cards
+        document.querySelectorAll('.glass-panel').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const icon = card.querySelector('.material-symbols-outlined');
+                if (icon) icon.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            });
+        });
+
+        // Simulating some dynamic status changes
+        setInterval(() => {
+            const priorityBar = document.querySelector('.bg-secondary-fixed-dim.w-3\\/4');
+            if (priorityBar) {
+                const currentWidth = parseFloat(priorityBar.style.width) || 75;
+                const newWidth = currentWidth + (Math.random() * 0.1);
+                if (newWidth <= 76) priorityBar.style.width = newWidth + '%';
+            }
+        }, 3000);
+    </script>
+</body></html>

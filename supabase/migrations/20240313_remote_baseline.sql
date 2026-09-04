@@ -1,0 +1,3 @@
+-- Remote baseline migration.
+-- This version already exists in the linked Supabase project.
+-- Kept locally so Supabase CLI migration history can reconcile.
